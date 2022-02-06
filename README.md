@@ -35,3 +35,5 @@ url1<br>
 url2<br>
 url3<br>
 ...
+
+You can view the progress of the program while running here: https://console.apify.com/actors/runs
