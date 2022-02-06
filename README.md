@@ -15,6 +15,9 @@ After you have cloned the repository you'll have to change the permissions of tw
 Then you need to run setup.sh once so that the virtual environment for the script is set up:<br>
 `youtube-scraper/setup.sh`
 
+Before using the script you must change the API_TOKEN value in creds.json to your account's API token.<br>
+Your API token can be found at: https://console.apify.com/account#/integrations
+
 # How to use
 
 In order to use the scraper you need to run the run.sh file with two parameters.
