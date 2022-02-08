@@ -7,5 +7,5 @@ echo "Creating virtual environment";
 python3 -m venv "$SCRIPT_ENV";
 source "$SCRIPT_ENV/bin/activate";
 echo "Installing dependecies to local virtual environment";
-pip3 install -r "$SCRIPT_DIRrequirements.txt";
+pip3 install -r "$SCRIPT_DIR/requirements.txt";
 deactivate;
