@@ -64,7 +64,7 @@ def processRawData (raw_data: List[Dict[str, any]]) -> List[Dict[str, Union[str,
         proc_data.append(
                 {
             'url' : item['url'],
-            'title' : item['title'],
+            'title' : item['title'].replace(',', ''),
             'views' : item['viewCount'],
             'date' : item['date'][:10],
             'tags' : get_tags(item['url']),
