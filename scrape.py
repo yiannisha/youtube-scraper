@@ -14,7 +14,8 @@ from typing import Dict, List, Union
 
 def makeRequest (start_urls: Dict[str, str], token: str) -> List[any]:
     '''
-    Makes a request to the YouTube Scraper API and returns data received.
+    Makes a request to the YouTube Scraper API and returns an iterator of
+    the data received.
     More info at: https://apify.com/bernardo/youtube-scraper
 
     :param start_urls: channel urls
@@ -42,7 +43,7 @@ def makeRequest (start_urls: Dict[str, str], token: str) -> List[any]:
     run = client.actor("bernardo/youtube-scraper").call(run_input=run_input)
 
     # Fetch actor results from the run's dataset (if there are any)
-    return [item for item in client.dataset(run["defaultDatasetId"]).iterate_items()]
+    return client.dataset(run["defaultDatasetId"]).iterate_items()
 
 def processRawData (raw_data: List[Dict[str, any]]) -> List[Dict[str, Union[str, int]]]:
     '''
@@ -65,14 +66,14 @@ def processRawData (raw_data: List[Dict[str, any]]) -> List[Dict[str, Union[str,
             'url' : item['url'],
             'title' : item['title'],
             'views' : item['viewCount'],
-            'date' : item['date'],
+            'date' : item['date'][:10],
             'tags' : get_tags(item['url']),
             }
         )
 
     return proc_data
 
-def get_tags (url: str) -> List[str]:
+def get_tags (url: str) -> Union[List[str], None]:
     '''
     Gets the tags of the YouTube video at the URL passed.
     Scrapes the video page and gets tags from <meta> data.
@@ -85,9 +86,10 @@ def get_tags (url: str) -> List[str]:
     soup = BeautifulSoup(requests.get(url).text, 'html.parser')
 
     try:
-        tags = soup.find('meta', {'name' : 'keywords'})['content'].split(',')
+        tags = [tag.strip() for tag in soup.find('meta', {'name' : 'keywords'})['content'].split(',') if tag.strip()]
     except:
         print(f'Tags not found for {url}')
+        tags.append('None')
 
     return tags
 
@@ -116,12 +118,15 @@ if __name__ == '__main__':
 
     # make API request and get raw data
     sys.stdout.write(f'Making requests for: {[url for url in start_urls]}\n')
-    data = processRawData(makeRequest(start_urls, API_TOKEN))
+    data_iterator = makeRequest(start_urls, API_TOKEN)
 
     # write data to a csv file
     sys.stdout.write(f'Exporting data to {CSV_FILE}\n')
     with open(CSV_FILE, 'w', encoding='utf-8') as f:
         f.write('url,title,views,date,tags\n')
 
-        for item in data:
-            f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{'/'.join(item['tags'])}\n")
+        for item in data_iterator:
+            item = processRawData([item])
+            if item:
+                item = item[0]
+                f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{'/'.join(item['tags'])}\n")
