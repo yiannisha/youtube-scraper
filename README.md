@@ -37,3 +37,11 @@ url3<br>
 ...
 
 You can view the progress of the program while running here: https://console.apify.com/actors/runs
+
+# Extracting data from JSON files
+
+In case the script fails for any reason you can still salavage all the data with JSON file found at: https://console.apify.com/actors/runs
+
+`youtube-scraper/fromfile.sh sample.csv items.json`
+
+The above example will return all the data, including tags from the json file into the csv file.
