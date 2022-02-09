@@ -35,7 +35,14 @@ url1<br>
 url2<br>
 url3<br>
 ...
+ 
+## Adding max results to return:<br>
+You can pass the optional max results argument by running run.sh like above but adding the number of the max results third.<br>
+Example: `youtube-scraper/run.sh sample.csv urls.txt 3`<br>
+ 
+This will do exactly the same job as the command above, but it will automatically stop when it reaches 3 scraped videos.<br>
 
+<br><br>
 You can view the progress of the program while running here: https://console.apify.com/actors/runs
 
 # Extracting data from JSON files
