@@ -7,5 +7,5 @@ SCRIPT_ENV="$SCRIPT_DIR/env";
 echo "$SCRIPT_ENV";
 
 source "$SCRIPT_ENV/bin/activate";
-python3 "$SCRIPT_PATH" "$1" < "$2";
+python3 "$SCRIPT_PATH" "$1" "$3" < "$2";
 deactivate;
