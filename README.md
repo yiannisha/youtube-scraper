@@ -21,14 +21,23 @@ Your API token can be found at: https://console.apify.com/account#/integrations
 # How to use
 
 In order to use the scraper you need to run the run.sh file with two parameters.
- - The CSV file that will be the output.
+ - The output file (CSV or XLSX).
  - A text file with all the channel urls that you need to scrape.
  
+<br><br>
 Example:
 `youtube-scraper/run.sh sample.csv urls.txt`
 
 This will scrape the data for all the channels in `urls.txt` and it will export that as `sample.csv`.
 
+
+<br><br>
+Example:
+`youtube-scraper/run.sh sample.xlsx urls.txt`
+
+This will scrape the data for all the channels in `urls.txt` and it will export that as `sample.xlsx`.
+
+<br><br>
 The file that contains the urls must be in the following format:
 
 url1<br>
@@ -49,6 +58,12 @@ You can view the progress of the program while running here: https://console.api
 
 In case the script fails for any reason you can still salavage all the data with JSON file found at: https://console.apify.com/actors/runs
 
+ 
 `youtube-scraper/fromfile.sh sample.csv items.json`
 
 The above example will return all the data, including tags from the json file into the csv file.
+
+
+`youtube-scraper/fromfile.sh sample.xlsx items.json`
+
+The above example will return all the data, including tags from the json file into the xlsx file.
