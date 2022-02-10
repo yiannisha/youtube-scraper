@@ -8,9 +8,9 @@ import json
 
 import scrape
 
-from typing import Dict
+from typing import List
 
-def jsonFileData(filepath: str) -> Dict[str, any]:
+def jsonFileData(filepath: str) -> List:
     '''
     Returns data from a json file.
     '''
@@ -20,6 +20,8 @@ def jsonFileData(filepath: str) -> Dict[str, any]:
     if os.path.isfile(filepath):
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.loads(''.join(f.readlines()))
+    else:
+        raise FileNotFoundError(f'Cannot find file named: {filepath}')
 
     return data
 
@@ -27,24 +29,22 @@ if __name__ == '__main__':
 
     # parse arguments
     try:
-        CSV_FILE = sys.argv[1]
+        OUT_FILE = sys.argv[1]
     except:
-        raise IndexError('No output csv file passed.')
+        raise IndexError('No output csv file passed.\n')
+    if not OUT_FILE.endswith('.csv') and not OUT_FILE.endswith('.xlsx'):
+        raise ValueError('Output file must be CSV or XLSX.\n')
+
     try:
         filepath = sys.argv[2]
     except:
-        raise FileNotFoundError('No json filepath passed.')
+        raise FileNotFoundError('No json filepath passed.\n')
+    if not filepath.endswith('.json'):
+        raise ValueError('Input file must be JSON file.\n')
 
     # get data from file
     file_data = jsonFileData(filepath)
 
-    # write data to csv file
-    sys.stdout.write(f'Exporting data to {CSV_FILE}\n')
-    with open(CSV_FILE, 'w', encoding='utf-8') as f:
-        f.write('url,title,views,date,tags\n')
-
-        for item in file_data:
-            item = scrape.processRawData([item])
-            if item:
-                item = item[0]
-                f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{'/'.join(item['tags'])}\n")
+    # write data to output file
+    if OUT_FILE.endswith('.csv'): scrape.exportCSV(file_data, OUT_FILE)
+    if OUT_FILE.endswith('.xlsx'): scrape.exportXLSX(file_data, OUT_FILE)

@@ -8,6 +8,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+import xlsxwriter
 from apify_client import ApifyClient
 
 from typing import Dict, List, Union
@@ -115,16 +116,16 @@ def read_credentials () -> str:
 
     return API_TOKEN
 
-def exportCSV (data_iterator, CSV_FILE: str) -> None:
+def exportCSV (data_iterator, OUT_FILE: str) -> None:
     '''
     Export data to csv.
 
     :param data_iter: an iterator of the data to be exported to the csv file
-    :param csvFilepath: filepath to csv to export data to.
+    :param OUT_FILE: filepath to csv to export data to.
     '''
 
-    sys.stdout.write(f'Exporting data to {CSV_FILE}\n')
-    with open(CSV_FILE, 'w', encoding='utf-8') as f:
+    sys.stdout.write(f'Exporting data to {OUT_FILE}\n')
+    with open(OUT_FILE, 'w', encoding='utf-8') as f:
         f.write('url,title,views,date,tags\n')
 
         for item in data_iterator:
@@ -132,6 +133,39 @@ def exportCSV (data_iterator, CSV_FILE: str) -> None:
             if item:
                 item = item[0]
                 f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{'/'.join(item['tags'])}\n")
+
+def exportXLSX (data_iterator, OUT_FILE: str) -> None:
+    '''
+    Export data to excel file.
+
+    :param data_iter: an iterator of the data to be exported to the csv file
+    :param OUT_FILE: filepath to excel to export data to.
+    '''
+
+    sys.stdout.write(f'Exporting data to {OUT_FILE}\n')
+    with xlsxwriter.Workbook(OUT_FILE) as workbook:
+        worksheet = workbook.add_worksheet()
+
+        # write column names
+        worksheet.write('A1', 'URL')
+        worksheet.write('B1', 'TITLE')
+        worksheet.write('C1', 'VIEWS')
+        worksheet.write('D1', 'DATE')
+        worksheet.write('E1', 'TAGS')
+
+        # write data
+        enum = 2
+        for item in data_iterator:
+            item = processRawData([item])
+            if item:
+                item = item[0]
+                worksheet.write(f'A{enum}', f"{item['url']}")
+                worksheet.write(f'B{enum}', f"{item['title']}")
+                worksheet.write(f'C{enum}', f"{item['views']}")
+                worksheet.write(f'D{enum}', f"{item['date']}")
+                worksheet.write(f'E{enum}', f"{'/'.join(item['tags'])}")
+
+                enum += 1
 
 
 if __name__ == '__main__':
@@ -143,9 +177,11 @@ if __name__ == '__main__':
     # output csv file
     if sys.argv[1]:
         # run.sh still passes '' when no argument is passed so we check for empty string
-        CSV_FILE = sys.argv[1]
+        OUT_FILE = sys.argv[1]
     else:
         raise ValueError('No output csv file specified.\n')
+    if not OUT_FILE.endswith('.csv') and not OUT_FILE.endswith('.xlsx'):
+        raise ValueError('Output file must be CSV or XLSX file.\n')
 
     # max results to return
     if sys.argv[2]:
@@ -167,5 +203,6 @@ if __name__ == '__main__':
     sys.stdout.write(f'Making requests for: {[url for url in start_urls]}\n')
     data_iterator = makeRequest(start_urls, MAX_RESULTS, token=API_TOKEN)
 
-    # write data to a csv file
-    exportCSV(data_iterator, CSV_FILE)
+    # write data to appropriate file
+    if OUT_FILE.endswith('.csv'): exportCSV(data_iterator, OUT_FILE)
+    if OUT_FILE.endswith('.xlsx'): exportXLSX(data_iterator, OUT_FILE)
