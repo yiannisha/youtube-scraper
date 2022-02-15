@@ -72,6 +72,8 @@ def processRawData (raw_data: List[Dict[str, str]]) -> List[Dict[str, Union[str,
             'title' : item['title'].replace(',', ''),
             'views' : item['viewCount'],
             'date' : item['date'][:10],
+            'likes' : item['likes'],
+            'duration' : item['duration'],
             'tags' : get_tags(item['url']),
             }
         )
@@ -126,13 +128,13 @@ def exportCSV (data_iterator, OUT_FILE: str) -> None:
 
     sys.stdout.write(f'Exporting data to {OUT_FILE}\n')
     with open(OUT_FILE, 'w', encoding='utf-8') as f:
-        f.write('url,title,views,date,tags\n')
+        f.write('url,title,views,date,likes,duration,tags\n')
 
         for item in data_iterator:
             item = processRawData([item])
             if item:
                 item = item[0]
-                f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{'/'.join(item['tags'])}\n")
+                f.write(f"{item['url']},{item['title']},{item['views']},{item['date']},{item['likes']},{item['duration']},{'/'.join(item['tags'])}\n")
 
 def exportXLSX (data_iterator, OUT_FILE: str) -> None:
     '''
@@ -151,7 +153,9 @@ def exportXLSX (data_iterator, OUT_FILE: str) -> None:
         worksheet.write('B1', 'TITLE')
         worksheet.write('C1', 'VIEWS')
         worksheet.write('D1', 'DATE')
-        worksheet.write('E1', 'TAGS')
+        worksheet.write('E1', 'LIKES')
+        worksheet.write('F1', 'DURATION')
+        worksheet.write('G1', 'TAGS')
 
         # write data
         enum = 2
@@ -163,7 +167,9 @@ def exportXLSX (data_iterator, OUT_FILE: str) -> None:
                 worksheet.write(f'B{enum}', f"{item['title']}")
                 worksheet.write(f'C{enum}', f"{item['views']}")
                 worksheet.write(f'D{enum}', f"{item['date']}")
-                worksheet.write(f'E{enum}', f"{'/'.join(item['tags'])}")
+                worksheet.write(f'E{enum}', f"{item['likes']}")
+                worksheet.write(f'F{enum}', f"{item['duration']}")
+                worksheet.write(f'G{enum}', f"{'/'.join(item['tags'])}")
 
                 enum += 1
 
